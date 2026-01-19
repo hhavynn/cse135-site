@@ -8,19 +8,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: Setup SSH
+        shell: bash
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DO_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s' "${{ secrets.DO_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ secrets.DO_HOST }}" >> ~/.ssh/known_hosts
 
+          echo "RUNNER KEY FINGERPRINT:"
+          ssh-keygen -lf ~/.ssh/id_ed25519
+
+          echo "SSH TEST:"
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes deploy@${{ secrets.DO_HOST }} "echo SSH_OK"
+
       - name: Push to droplet bare repo
+        shell: bash
         run: |
-          git remote add prod "${{ secrets.DO_USER }}@${{ secrets.DO_HOST }}:/var/repo/cse135-site.git"
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+          git remote remove prod 2>/dev/null || true
+          git remote add prod "deploy@${{ secrets.DO_HOST }}:/var/repo/cse135-site.git"
           git push prod HEAD:master --force
