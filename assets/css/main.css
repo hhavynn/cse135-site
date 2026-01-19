@@ -1,0 +1,54 @@
+/* main.css — minimal, modern defaults */
+
+/* 1) Reasonable box model everywhere */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2) Consistent base typography */
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    "Apple Color Emoji",
+    "Segoe UI Emoji";
+  color: #111;
+  background: #fff;
+}
+
+/* 3) Media elements behave nicely */
+img,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 4) Form elements inherit fonts */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* 5) A tiny layout helper */
+.container {
+  width: min(100% - 2rem, 70rem);
+  margin-inline: auto;
+  padding-block: 1.25rem;
+}
