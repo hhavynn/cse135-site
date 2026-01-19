@@ -8,26 +8,40 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Setup SSH
+      - name: Setup SSH key + known_hosts
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p ~/.ssh
-          printf '%s' "${{ secrets.DO_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "${{ secrets.DO_HOST }}" >> ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
 
+          # Write PRIVATE key from secret (must start with: -----BEGIN OPENSSH PRIVATE KEY-----)
+          printf '%s\n' "${{ secrets.DO_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # Add server host key
+          ssh-keyscan -H "${{ secrets.DO_HOST }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+          # Show fingerprint of the KEY WE JUST WROTE (this is the line I want from your logs)
           echo "RUNNER KEY FINGERPRINT:"
           ssh-keygen -lf ~/.ssh/id_ed25519
 
-          echo "SSH TEST:"
-          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes deploy@${{ secrets.DO_HOST }} "echo SSH_OK"
+      - name: SSH sanity check (must print deploy)
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes deploy@${{ secrets.DO_HOST }} "whoami"
 
       - name: Push to droplet bare repo
         shell: bash
         run: |
-          export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+          set -euo pipefail
           git remote remove prod 2>/dev/null || true
-          git remote add prod "deploy@${{ secrets.DO_HOST }}:/var/repo/cse135-site.git"
-          git push prod HEAD:master --force
+          git remote add prod "ssh://deploy@${{ secrets.DO_HOST }}/var/repo/cse135-site.git"
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes" git push prod HEAD:master --force
