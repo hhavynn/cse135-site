@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Havyn Nguyen</title>
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 16px; }
+    header { margin-bottom: 20px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    a { text-decoration: none; }
+    button { padding: 10px 14px; cursor: pointer; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="/">← Back to Home</a>
+    <h1>Havyn Nguyen</h1>
+    <p>Math-CS @ UCSD</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>About me</h2>
+      <p>
+        I like building projects, learning new tools, and turning messy problems into clean systems.
+        Right now I’m working on hosting and deploying a site for CSE 135.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Live time</h2>
+      <p id="clock">Loading…</p>
+    </section>
+
+    <section class="card">
+      <h2>Random fun fact</h2>
+      <p id="fact">Click the button 👇</p>
+      <button id="btn" type="button">Generate</button>
+    </section>
+
+    <section class="card">
+      <h2>Quick links</h2>
+      <ul>
+        <li><a href="https://havyn.site/">Home</a></li>
+        <li><a href="https://havyn.site/hw1/">HW1</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const clockEl = document.getElementById("clock");
+    const tick = () => { clockEl.textContent = new Date().toLocaleString(); };
+    tick();
+    setInterval(tick, 1000);
+
+    const facts = [
+      "I trust curl more than browsers.",
+      "If it works once, it’s a feature.",
+      "DNS propagation builds character."
+    ];
+
+    const factEl = document.getElementById("fact");
+    document.getElementById("btn").addEventListener("click", () => {
+      factEl.textContent = facts[Math.floor(Math.random() * facts.length)];
+    });
+  </script>
+</body>
+</html>
+
